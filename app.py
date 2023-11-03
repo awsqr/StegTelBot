@@ -1,7 +1,6 @@
 import telebot
 import credential
 import StegEngine
-import cv2
 
 bTOKEN = credential.TOKEN
 
@@ -44,7 +43,7 @@ def send_encoded_image(message):
     blank_image = bot.download_file(image_path.file_path)
     with open(path,'wb') as new_file:
         new_file.write(blank_image)
-    encoded_image = StegEngine.encode(image_path.file_path, secret_message)
+    encoded_image = StegEngine.encode(path, secret_message)
 
     bot.reply_to(message, encoded_image)
 
