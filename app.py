@@ -1,6 +1,9 @@
 import telebot
 import credential
 import StegEngine
+import cv2
+from telebot.types import InputFile
+import os
 
 bTOKEN = credential.TOKEN
 
@@ -24,17 +27,28 @@ def send_encode(message):
 def store_message(message):
     global secret_message
     secret_message = message.text
-    bot.reply_to(message, "Now select an image")
+    sent_msg = bot.reply_to(message, "Now select an image")
+    bot.register_next_step_handler(sent_msg, send_encoded_image)
 
 @bot.message_handler(commands=['decode'])
 def send_decode(message):
-    image_path = bot.get_file(message.photo.file_id)
-    secret_image = bot.download_file(image_path.file_path)
-    decoded_message = StegEngine.decode(secret_image)
-    bot.reply_to(message, decoded_message)
+    sent_msg = bot.reply_to(message, "Got it. Please send encoded photo.")
+    bot.register_next_step_handler(sent_msg, send_decoded_message)
 
-@bot.message_handler(content_types=['photo'])
+def send_decoded_message(message):
+    raw = message.photo[2].file_id
+    path = raw+".png"
+    image_path = bot.get_file(raw)
+    secret_image = bot.download_file(image_path.file_path)
+    with open(path,'wb') as new_file:
+        new_file.write(secret_image)
+    decoded_message = StegEngine.decode(path)
+    bot.reply_to(message, decoded_message, )
+    os.remove(path)
+
+
 def send_encoded_image(message):
+    output_image = "image_1.PNG"
     raw = message.photo[2].file_id
     path = raw+".png"
     global image_path
@@ -44,8 +58,12 @@ def send_encoded_image(message):
     with open(path,'wb') as new_file:
         new_file.write(blank_image)
     encoded_image = StegEngine.encode(path, secret_message)
-
-    bot.reply_to(message, encoded_image)
+    if(cv2.imwrite(output_image, encoded_image)):
+        bot.send_photo(message.chat.id, InputFile(output_image))
+    else:
+        bot.reply_to(message, "failed to encode image.")
+    os.remove(output_image)
+    os.remove(path)
 
 @bot.message_handler(func=lambda msg: True)
 def default(message):

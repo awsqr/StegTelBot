@@ -66,4 +66,4 @@ def decode(image_name):
         decoded_data += chr(int(byte, 2))
         if decoded_data[-5:] == "=====":
             break
-    return decoded_data[:-5]
+    return decoded_data[-14:-5]
