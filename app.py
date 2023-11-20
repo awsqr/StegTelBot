@@ -24,6 +24,17 @@ def send_encode(message):
     sent_msg = bot.reply_to(message, "Now send the message you would like to encode.")
     bot.register_next_step_handler(sent_msg, store_message)
 
+@bot.message_handler(content_types=['photo'])
+def image_received(message):
+    sent_msg = bot.reply_to(message, "Now select a command.")
+    bot.register_next_step_handler(sent_msg, encode_or_decode)
+
+def encode_or_decode(message):
+    if message.text == "/decode":
+        send_decode(message)
+    elif message.text == "/encode":
+        send_encode(message)
+
 def store_message(message):
     global secret_message
     secret_message = message.text
