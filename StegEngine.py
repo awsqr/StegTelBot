@@ -49,6 +49,7 @@ def encode(image_name, secret_data):
                 break
     return image
 
+
 def decode(image_name):
     image = cv2.imread(image_name)
     binary_data = ""
@@ -66,4 +67,5 @@ def decode(image_name):
         decoded_data += chr(int(byte, 2))
         if decoded_data[-5:] == "=====":
             break
-    return decoded_data[-14:-5]
+    return decoded_data[:-5]
+

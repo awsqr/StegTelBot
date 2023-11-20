@@ -43,7 +43,7 @@ def send_decoded_message(message):
     with open(path,'wb') as new_file:
         new_file.write(secret_image)
     decoded_message = StegEngine.decode(path)
-    bot.reply_to(message, decoded_message, )
+    bot.reply_to(message, decoded_message[:20])
     os.remove(path)
 
 
@@ -69,4 +69,6 @@ def send_encoded_image(message):
 def default(message):
     bot.reply_to(message, message.text)
 
-bot.infinity_polling()
+if __name__ == '__main__':
+    bot.infinity_polling()
+
